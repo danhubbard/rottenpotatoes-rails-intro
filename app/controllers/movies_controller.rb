@@ -12,8 +12,12 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.rating_options
-    @filtered_ratings = params['ratings'] ? Movie.filtered_ratings(params['ratings']) : @all_ratings
-    @movies = Movie.where("rating IN (?)", @filtered_ratings).order(params[:order])
+    session[:rating_filters] = @all_ratings unless session[:rating_filters]
+    session[:rating_filters] = params['ratings'] ? Movie.filtered_ratings(params['ratings']) : session[:rating_filters]
+    session[:movie_order] = '' unless session[:movie_order]
+    session[:movie_order] = params[:order] ? params[:order] : session[:movie_order]
+    @filtered_ratings = session[:rating_filters]
+    @movies = Movie.where("rating IN (?)", @filtered_ratings).order(session[:movie_order])
   end
 
   def new
